@@ -30,7 +30,7 @@ class BaseConnection(object):
     Otherwise method left as a stub method.
     """
     def __init__(self, ip='', host='', username='', password='', secret='', port=None,
-                 device_type='', verbose=False, global_delay_factor=1, use_keys=False,
+                 device_type='', verbose=False, global_delay_factor=.1, use_keys=False,
                  key_file=None, ssh_strict=False, system_host_keys=False, alt_host_keys=False,
                  alt_key_file='', ssh_config_file=None, timeout=8):
 
@@ -153,7 +153,7 @@ class BaseConnection(object):
         raise NetMikoTimeoutException("Timed-out reading channel, pattern not found in output: {}"
                                       .format(pattern))
 
-    def _read_channel_timing(self, delay_factor=1, max_loops=150):
+    def _read_channel_timing(self, delay_factor=.2, max_loops=150):
         """
         Read data on the channel based on timing delays.
 
@@ -527,7 +527,7 @@ class BaseConnection(object):
         """Read any data available in the channel."""
         self.read_channel()
 
-    def send_command_timing(self, command_string, delay_factor=1, max_loops=150,
+    def send_command_timing(self, command_string, delay_factor=.1, max_loops=150,
                             strip_prompt=True, strip_command=True):
         '''
         Execute command_string on the SSH channel.
@@ -571,7 +571,7 @@ class BaseConnection(object):
             return a_string
 
     def send_command(self, command_string, expect_string=None,
-                     delay_factor=1, max_loops=500, auto_find_prompt=True,
+                     delay_factor=.1, max_loops=500, auto_find_prompt=True,
                      strip_prompt=True, strip_command=True):
         '''
         Send command to network device retrieve output until router_prompt or expect_string
@@ -767,7 +767,7 @@ class BaseConnection(object):
         with io.open(config_file, encoding='utf-8') as cfg_file:
             return self.send_config_set(cfg_file, **kwargs)
 
-    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=1,
+    def send_config_set(self, config_commands=None, exit_config_mode=True, delay_factor=.1,
                         max_loops=150, strip_prompt=False, strip_command=False):
         """
         Send configuration commands down the SSH channel.
@@ -788,7 +788,7 @@ class BaseConnection(object):
         output = self.config_mode()
         for cmd in config_commands:
             self.write_channel(self.normalize_cmd(cmd))
-            time.sleep(delay_factor * .5)
+            time.sleep(delay_factor * .1)
 
         # Gather output
         output = self._read_channel_timing(delay_factor=delay_factor, max_loops=max_loops)
